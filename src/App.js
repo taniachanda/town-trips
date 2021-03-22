@@ -17,6 +17,7 @@ export const UserContext = createContext();
 
 function App(props) {
   const [user, setLoggedInUser] = useState({});
+  console.log(user);
   return (
     <UserContext.Provider value = {[user, setLoggedInUser]}>
         <Router>
@@ -29,7 +30,6 @@ function App(props) {
             <Destination />
           </PrivateRoute>
           <Route path="/blog">
-
           </Route>
           <Route path="/contact">       
           </Route>

@@ -8,42 +8,26 @@ import transportsData from '../../JsonData/Data.json';
 
 
 
-const Destination = (props) => {
-   const {rideId} = useParams();
-    const chooseRide = transportsData[rideId]
-    console.log(chooseRide)
+const Destination = () => {
+//     const [ ride, getRide] = useState("")
+//     const { key } = useParams()
 
-   const [ name, setTransport] = useState({});
-   useEffect(() =>{
-    setTransport(transportsData)
-}, []);
+//     // console.log(chooseRide)
+  
+//     const selectededRideDetails = transport.find (x => x.id = key)
+// }, []);
 
-    const [pickFrom, setPickFrom] = useState();
-    const [pickTo, setPickTo] = useState();
-    const [showPlace, setPlace] = useState();
-
-            function getRide(val) {
-                setPickFrom(val.target.value)
-                setPlace(false)
-            }
-            function getRide(val) {
-                setPickTo(val.target.value)
-                setPlace(false)
-            }
-
-
-
-//   const [fromPlace, setFromPlace]= useState();
-//   const [toPlace, setToPlace]= useState();
-//   const [showPlace, SetShowPlace]= useState(false);
-//         function getPlace(val) {    
-//             setToPlace(val.target.value)
-//             SetShowPlace(false)
-//         }
-//         function getPlace(val) {
-//             setFromPlace(val.target.value)
-//             SetShowPlace(false)
-//         }
+  const [fromPlace, setFromPlace]= useState();
+  const [toPlace, setToPlace]= useState();
+  const [showPlace, SetShowPlace]= useState(false);
+        function getPlace(val) {    
+            setToPlace(val.target.value)
+            SetShowPlace(false)
+        }
+        function getPlace(val) {
+            setFromPlace(val.target.value)
+            SetShowPlace(false)
+        }
 
 
 
@@ -51,14 +35,13 @@ const Destination = (props) => {
     const [user] = useContext(UserContext);
     return (
         <div className="container">
-            <h6>{user.name}</h6>
             <div className="row">
            <div className="">                 
             {
-                showPlace?<p>{pickFrom}</p>: ""
+                showPlace?<p>{fromPlace}</p>: ""
             }
             {
-                showPlace?<p>{pickTo}</p>: ""
+                showPlace?<p>{toPlace}</p>: ""
             }
            {/* <div className="">
            <ul>
@@ -85,12 +68,12 @@ const Destination = (props) => {
             <div className="row">
             <div className="col-md-4">
                <label>Pick From</label><br/>
-               <input onChange={getRide} type="text" name="name" /><br/> 
+               <input onChange={getPlace} type="text" name="name" /><br/> 
                
                <label>Pick To</label> <br/>
-               <input onChange={getRide} type="text" name="name" /><br/>
+               <input onChange={getPlace} type="text" name="name" /><br/>
                
-               <button onClick={()=>setPlace(false)} className="btn btn-danger">Search</button>
+               <button onClick={()=>SetShowPlace(false)} className="btn btn-danger">Search</button>
             </div>
             <div className="col-md-8 align-self-end">
             <img src={imgMap} />
