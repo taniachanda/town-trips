@@ -1,0 +1,24 @@
+[{  "id": "1",
+    "img": "https://i.ibb.co/6tKYqqz/Frame.png",
+    "name": "BIKE",
+    "cost" : "$ 67",
+    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+  }, {
+    "id": "2",
+    "img": "https://i.ibb.co/xM77TdV/Frame-2.png",
+    "name": "CAR",
+    "cost" : "$ 67",
+    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+  }, {
+    "id": "3",
+    "img": "https://i.ibb.co/WKhzkht/Frame-1.png",
+    "name": "BUS",
+    "cost" : "$ 67",
+    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+  }, {
+    "id": "4",
+    "img": "https://i.ibb.co/4F1dGMZ/Group.png",
+    "name": "TRAIN",
+    "cost" : "$ 67",
+    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+  }]
