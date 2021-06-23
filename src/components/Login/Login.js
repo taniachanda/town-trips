@@ -1,179 +1,229 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import './Login.css';
+// import Navbar from '../Navbar/HomeNavbar';
 import firebase from "firebase/app";
 import "firebase/auth";
-import firebaseConfig from './firebase.config';
-import { MDBBtn, MDBCard, MDBCardBody, MDBCol, MDBContainer, MDBIcon, MDBInput, MDBModalFooter, MDBRow } from 'mdbreact';
-import { FaFacebook, FaGithub, FaGoogle } from "react-icons/fa"
+import firebaseConfig from './firebase.config'
+import { FaGoogle } from "react-icons/fa"
 import { useHistory, useLocation } from 'react-router';
 import { UserContext } from '../../App';
+
+
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
-} else {
-  firebase.app();
 }
 
 
 const Login = () => {
-  var googleProvider = new firebase.auth.GoogleAuthProvider();
-  var gitHubProvider = new firebase.auth.GithubAuthProvider();
-  const [user, setLoggedInUser] = useContext(UserContext);
+
+  const [ setSignedInUser] = useContext(UserContext);
+  const [showSignIn, setShowSignIn] = useState(true);
+  const [newUserStatus, setNewUserStatus] = useState(true);
+  const [user, setUser] = useState({
+      name: '',
+      email: '',
+      password: '',
+      isSignedIn: false,
+      errorMessage: '',
+      errorStatus: false
+  });
+  const [validationMsg, setValidationMsg] = useState({
+      msg: '',
+      errorStatus: false
+  });
   const history = useHistory();
   const location = useLocation();
-  const { form } = location.state || { from: { pathname: "/" } };
+  const { from } = location.state || { from: { pathname: "/" } };
 
 
-
-  const handleGoogleSignIn = () => {
-    firebase
-    .auth()
-    .signInWithPopup(googleProvider)
-    .then((result) => {
-      const user = result.user;
-      setLoggedInUser(user);
-      history.replace(form);
-    })
-    .catch((error) => {
-      const errorMessage = error.message;
-
-      console.log(errorMessage)
-
-    });
+  const handleSignIn = e => {
+      e.preventDefault();
+      if (newUserStatus && user.name && user.email && user.password) {
+          firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+              .then((userCredential) => {
+                  updateProfile(user.name);
+                  setSignedInUser({
+                      name: user.name,
+                      email: user.email
+                  })
+                  const userInfo = { ...user };
+                  userInfo.errorStatus = false;
+                  userInfo.isSignedIn = true;
+                  setUser(userInfo);
+                  setNewUserStatus(!newUserStatus);
+                  history.replace(from);
+              })
+              .catch((error) => {
+                  const errorMessage = error.message;
+                  const userInfo = { ...user };
+                  userInfo.errorMessage = errorMessage;
+                  userInfo.errorStatus = true;
+                  userInfo.isSignedIn = false;
+                  setUser(userInfo);
+              });
+      }
+      if (!newUserStatus && user.email && user.password) {
+          firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+              .then((userCredential) => {
+                  const user = userCredential.user;
+                  setSignedInUser({
+                      name: user.displayName,
+                      email: user.email
+                  })
+                  const userInfo = { ...user };
+                  userInfo.errorStatus = false;
+                  userInfo.isSignedIn = true;
+                  setUser(userInfo);
+                  setNewUserStatus(!newUserStatus);
+                  history.replace(from);
+              })
+              .catch((error) => {
+                  const errorMessage = error.message;
+                  const userInfo = { ...user };
+                  userInfo.errorMessage = errorMessage;
+                  userInfo.errorStatus = true;
+                  userInfo.isSignedIn = false;
+                  setUser(userInfo);
+              });
+      }
   }
 
-
-  const handleGitHubSignIn = () => {
-    firebase.auth()
-      .signInWithPopup(gitHubProvider)
-      .then((result) => {
-        const { displayName, email } = result.user;
-        const userLogin = { name: displayName, email }
-        setLoggedInUser(userLogin);;
-        history.replace(form)
-
-        console.log(user);
-      }).catch((error) => {
-        const errorMessage = error.message;
-        setLoggedInUser(errorMessage)
+  const updateProfile = name => {
+      var user = firebase.auth().currentUser;
+      user.updateProfile({
+          displayName: name,
+      }).then(function () {
+          // Update successful.
+      }).catch(function (error) {
+          // An error happened.
       });
   }
-
-  const handleSubmit = (e) => {
-    if (user.email && user.password) {
-      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-        .then(res => {
-          console.log(res)
-        })
-        .catch((error) => {
-
-          var errorMessage = error.message;
-          console.log(errorMessage)
+  
+  const handleGoogleSignIn = () => {
+    var googleProvider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth()
+        .signInWithPopup(googleProvider)
+        .then(result => {
+            const { displayName, email } = result.user;
+            const user = result.user;
+            localStorage.setItem("name", JSON.stringify(user.displayName));
+            localStorage.setItem("email", JSON.stringify(user.email));
+            const signedInUser = { name: displayName, email }
+            setSignedInUser(signedInUser)
+            history.replace(from);
+            // history.go(0);
+        }).catch(error => {
+            // const errorCode = error.code;
+            // const errorMessage = error.message;
+            // setError({ errorCode, errorMessage });
         });
-    }
-    e.preventDefault();
-  }
+}
 
-  const handleEmailAndPasswordSignIn = (e) => {
-    let isFieldValid;
-    if (e.target.name === "email") {
-      isFieldValid = /\S+@\S+\.\S+/.test(e.target.value);
-
-    }
-    if (e.target.name === "password") {
-      const isPasswordValid = e.target.value.length > 6;
-      const PasswordNumber = /\d{1}/.test(e.target.value);
-      isFieldValid = isPasswordValid && PasswordNumber
-    }
-    if (isFieldValid) {
-      const { displayName, email } = { ...user };
-      const NewUserInfo = { name: displayName, email };
-      handleEmailAndPasswordSignIn(NewUserInfo)
-    }
+  // const handleGoogleSignIn = () => {
+  //     const googleProvider = new firebase.auth.GoogleAuthProvider();
+  //     firebase.auth()
+  //         .signInWithPopup(googleProvider)
+  //         .then((result) => {
+  //             const user = result.user;
+  //             setSignedInUser({
+  //                 name: user.displayName,
+  //                 email: user.email
+  //             })
+  //             history.replace(from);
+  //         }).catch((error) => {
+  //             const errorMessage = error.message;
+  //             const userInfo = { ...user };
+  //             userInfo.errorMessage = errorMessage;
+  //             userInfo.errorStatus = true;
+  //             setUser(userInfo);
+  //         });
+  // }
+  const handleBlur = e => {
+      let isValid = true;
+      if (e.target.name === 'name') {
+          const userInfo = { ...user };
+          userInfo.name = e.target.value;
+          setUser(userInfo);
+      }
+      if (e.target.name === 'email') {
+          const regExPattern = /^[^\s@]+@[^\s@]+$/;
+          isValid = regExPattern.test(e.target.value);
+          if (isValid) {
+              const userInfo = { ...user };
+              userInfo.email = e.target.value;
+              setUser(userInfo);
+              const validation = { ...validationMsg };
+              validation.msg = '';
+              validation.errorStatus = false;
+              setValidationMsg(validation);
+          } else {
+              const validation = { ...validationMsg };
+              validation.msg = 'Please give a valid email address';
+              validation.errorStatus = true;
+              setValidationMsg(validation);
+          }
+      }
+      if (e.target.name === 'password') {
+          const isLong = e.target.value.length > 5;
+          const passHasNum = /\d{1}/.test(e.target.value);
+          isValid = isLong && passHasNum;
+          if (isValid) {
+              const userInfo = { ...user };
+              userInfo.password = e.target.value;
+              setUser(userInfo);
+              const validation = { ...validationMsg };
+              validation.msg = '';
+              validation.errorStatus = false;
+              setValidationMsg(validation);
+          } else {
+              const validation = { ...validationMsg };
+              validation.msg = 'Password should be at least of 6 characters including a number';
+              validation.errorStatus = true;
+              setValidationMsg(validation);
+          }
+      }
   }
   return (
-    <MDBContainer>
-      <MDBRow className="justify-content-center login-card" >
-        <MDBCol md="6">
-          <MDBCard onClick={handleSubmit}>
-            <MDBCardBody className="mx-4">
-              <div className="text-center">
-                <h3 className="dark-grey-text mb-5">
-                  <strong>Sign in</strong>
-                </h3>
-              </div>
-              <h5>Your Name</h5>
-              <MDBInput
-                onBlur={handleEmailAndPasswordSignIn}
-                name="name"
-                group
-                type="text"
-                validate
-                error="wrong"
-                success="right" placeholder="Name"
-              />
-              <h5>Your Email</h5>
-              <MDBInput
-                onBlur={handleEmailAndPasswordSignIn}
-                name="email"
-                group
-                type="email"
-                validate
-                error="wrong"
-                success="right" placeholder="Email" required
-              />
-              <h5>Your Password</h5>
-              <MDBInput
-                onBlur={handleEmailAndPasswordSignIn}
-                group
-                type="password"
-                validate
-                containerClass="mb-0"
-                name="password" placeholder="Password" required
-              />
-              <div className="text-center mb-3">
-                <MDBBtn onClick={handleSubmit}
-                  type="button"
-                  gradient="blue"
-                  rounded>
-                  Sign in
-                </MDBBtn>
-              </div>
-              <p className="font-small dark-grey-text text-right d-flex justify-content-center mb-3 pt-2">or Sign in with:
+      <div className='mx-auto'>
+          {/* <Navbar/> */}
+          <form onSubmit={handleSignIn} style={{ maxWidth: '400px' }} className='mx-auto m-4 p-4 shadow-lg rounded'>
+              <h5 className="text-primary py-3">Login Form</h5>
+              {
+                  showSignIn && <input type="text" className='form-control my-3 px-1' onBlur={handleBlur} name="name" id="username" placeholder='Full Name' required />
+              }
+              <input type="text" className='form-control my-3 px-1' onBlur={handleBlur} name="email" id="usermail" placeholder='Email address' required />
+              <input type="password" className='form-control my-3 px-1' onBlur={handleBlur} name="password" id="userpass" placeholder='Choose password' required />
+              {
+                  validationMsg.errorStatus && <p className='text-danger py-2'>{validationMsg.msg}</p>
+              }
+              <input type="submit" value={showSignIn ? 'Register' : 'Sign in'} className='btn btn-success px-4 py-1' />
+              <p className='text-center py-3 text-secondary'>{showSignIn ? 'Already have an account?' : 'Create a new account'}
+                  <input type="checkbox" name="signin" id="signin" onChange={() => {
+                      setShowSignIn(!showSignIn);
+                      setNewUserStatus(!newUserStatus);
+                  }} className='d-none' />
+                  <label htmlFor="signin" className='mx-1 text-primary sign-in-toggle'>{showSignIn ? 'Sign in' : ' Register'}</label>
               </p>
-              <div className="row my-3 d-flex justify-content-center">
-                <MDBBtn
-                  type="button"
-                  color="white"
-                  rounded
-                  className="mr-md-3 z-depth-1a"
-                >
-                  <FaGithub onClick={handleGitHubSignIn} className="blue-text" />
-                </MDBBtn>
-                <MDBBtn
-                  type="button"
-                  color="white"
-                  rounded
-                  className="z-depth-1a"
-                >
-                  <FaGoogle onClick={handleGoogleSignIn} fab icon="google-plus-g" className="blue-text" />
-                </MDBBtn>
-              </div>
-            </MDBCardBody>
-            <MDBModalFooter className="mx-5 pt-3 mb-1">
-              <p className="font-small grey-text d-flex justify-content-end">
-                Not a member?
-                <a href="#!" className="blue-text ml-1">
+          </form>
+          <div className="messages w-100 text-center">
+              {
+                  user.errorStatus && <p className='text-danger border d-inline-block border-danger px-5 py-2 my-2'>{user.errorMessage}</p>
+              }
+              {
+                  user.isSignedIn && <p className='text-success d-inline-block border border-success px-5 py-2 my-2'>Successfully signed in</p>
+              }
+          </div>
 
-                  Sign Up
-                </a>
-              </p>
-            </MDBModalFooter>
-          </MDBCard>
-        </MDBCol>
-      </MDBRow>
-    </MDBContainer>
+          {/* <p className='text-center py-2 text-secondary'><b>Or</b></p> */}
+          <div className="w-100 text-center">
+              <button className='btn btn-info py-2 px-5 my-2' onClick={handleGoogleSignIn}><FaGoogle/> Sign in with google</button>
+              {/* <p style={{ color: 'red' }}>{error.errorCode} {error.errorMessage}</p> */}
+          </div>
 
+      </div>
   );
 };
+
+
 
 export default Login;

@@ -2,50 +2,49 @@ import React, { createContext, useState } from 'react';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import Login from './components/Login/Login';
-import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
 import NotFound from './components/NotFound/NotFound';
 import Destination from './components/Destination/Destination';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
+import Navbar from './components/Navbar/HomeNavbar';
 export const UserContext = createContext();
 
-function App(props) {
-  const [user, setLoggedInUser] = useState({});
-  console.log(user);
+function App() {
+  const [signedInUser, setSignedInUser] = useState({});
+  console.log(signedInUser);
+
   return (
-    <UserContext.Provider value = {[user, setLoggedInUser]}>
+    <UserContext.Provider value = {[signedInUser, setSignedInUser]}>
         <Router>
-        <Navbar></Navbar>
+          <Navbar/>
         <Switch>
-          <Route path="/home">
-           <Home></Home> 
+          <Route path="/home" component={Home}>
+           <Home/> 
           </Route>
-          <PrivateRoute path={"/destination"}>
+          <Route exact path="/" component={Home}> 
+          <Home/> 
+          </Route>
+          <PrivateRoute path="/destination/:vehicle">
             <Destination />
           </PrivateRoute>
-          <Route path="/blog">
-          </Route>
-          <Route path="/contact">       
-          </Route>
-          <Route path="/login">
-          <Login></Login>
-          </Route>
-          <Route exact path="/">
-          <Home></Home> 
-          </Route>
-          <Route path="*">
-            <NotFound></NotFound>
+          {/* <Route path="/blog">
+          </Route> */}
+          {/* <Route path="/contact" component={Login}>       
+          </Route> */}
+          <Route path="/login" component={Login}>
+          <Login/>
+          </Route>    
+          <Route path="*" component={NotFound}>
+            <NotFound/>
           </Route>
         </Switch>
       </Router> 
       </UserContext.Provider>
-
   );
 }
 

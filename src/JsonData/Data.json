@@ -1,24 +1,30 @@
-[{  "id": "1",
+[
+  {  "id": 1,
     "img": "https://i.ibb.co/6tKYqqz/Frame.png",
     "name": "BIKE",
-    "cost" : "$ 67",
-    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+    "cost" : "$ 17",
+    "noOfTransportation": 10,
+    "availableSeat": 1
   }, {
-    "id": "2",
+    "id": 2,
     "img": "https://i.ibb.co/xM77TdV/Frame-2.png",
     "name": "CAR",
     "cost" : "$ 67",
-    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+    "noOfTransportation": 5,
+    "availableSeat": 4
   }, {
-    "id": "3",
+    "id": 3,
     "img": "https://i.ibb.co/WKhzkht/Frame-1.png",
     "name": "BUS",
-    "cost" : "$ 67",
-    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
+    "cost" : "$ 7",
+    "noOfTransportation": 4,
+    "availableSeat": 40
   }, {
-    "id": "4",
+    "id": 4,
     "img": "https://i.ibb.co/4F1dGMZ/Group.png",
     "name": "TRAIN",
-    "cost" : "$ 67",
-    "imgBadge": "https://i.ibb.co/6tKYqqz/Frame.png"
-  }]
+    "cost" : "$ 35",
+    "noOfTransportation": 1,
+    "availableSeat": 300
+  }
+]
